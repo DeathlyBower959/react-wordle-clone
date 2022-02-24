@@ -1,10 +1,14 @@
 import React from 'react'
 import { useEffect, useContext } from 'react'
 import styled from 'styled-components'
+import WordContext from '../contexts/WordContext'
+import { decrypt } from '../utils/encrypt'
 
 import possibleWords from '../words/possibleWords.json'
 
 const Keyboard = ({ setWords }) => {
+    const words = useContext(WordContext)
+
     const submitWord = () => {
         setWords(prev => {
             if (!possibleWords.includes(prev[prev.length - 1])) return prev
@@ -34,6 +38,31 @@ const Keyboard = ({ setWords }) => {
             prev[prev.length - 1] = prev[prev.length - 1].slice(0, -1)
             return [...prev]
         })
+    }
+
+    const calculateKeyState = key => {
+        const word = decrypt(localStorage.getItem('word'))
+
+        let obj = {}
+
+        words.forEach((w, col) => {
+            for (let row = 0; row < word.length; row++) {
+                const letter = w && w[row]
+
+                if (
+                    letter == '' ||
+                    letter == undefined ||
+                    words[col + 1] == undefined
+                )
+                    continue
+
+                if (word[row] == letter) obj[letter] = 'correct'
+                else if (word.includes(letter)) obj[letter] = 'wrongLoc'
+                else obj[letter] = 'wrong'
+            }
+        })
+
+        return obj[key.toLowerCase()]
     }
 
     useEffect(() => {
@@ -87,7 +116,11 @@ const Keyboard = ({ setWords }) => {
                         </Key>
                     )
                 return (
-                    <Key onClick={() => handleClick(x)} key={i}>
+                    <Key
+                        onClick={() => handleClick(x)}
+                        key={i}
+                        state={calculateKeyState(x)}
+                    >
                         {x}
                     </Key>
                 )
@@ -112,6 +145,7 @@ const Key = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
+
     background-color: ${props =>
         props.state == 'correct'
             ? '#538d4e'
