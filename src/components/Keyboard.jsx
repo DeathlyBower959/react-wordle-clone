@@ -16,8 +16,8 @@ const Keyboard = ({ setWords }) => {
 
     const handleClick = key => {
         setWords(p => {
-            console.log('WordLength',p.length)
-            if (p?.length > 5) return
+            if (p?.length > 6) return p
+
             let prev = [...p]
             if (prev[prev.length - 1]?.length == 5) return prev
 

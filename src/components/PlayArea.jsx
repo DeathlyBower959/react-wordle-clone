@@ -23,7 +23,8 @@ const PlayArea = () => {
     const calcClassName = (col, row) => {
         const letter = words[col] && words[col][row]
 
-        if (letter == '' || letter == undefined || words[col]?.length < 5) return
+        if (letter == '' || letter == undefined || words[col]?.length < 5)
+            return
 
         if (!possibleWords.includes(words[col])) return 'shake'
 
@@ -39,9 +40,8 @@ const PlayArea = () => {
     }
 
     const calcTileStates = (col, row) => {
-        console.log(words[col]?.length)
         if (words[col]?.length < 5) return
-        
+
         if (words[col + 1] == undefined) return
 
         const tile = document.getElementById(`${col}:${row}`)
