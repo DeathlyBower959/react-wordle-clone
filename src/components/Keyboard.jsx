@@ -162,7 +162,7 @@ const Key = styled.div`
     cursor: pointer;
     user-select: none;
 
-    transition: filter 175ms ease-out;
+    transition: filter 175ms ease-out, background-color 100ms ease-out;
 
     &:hover {
         filter: brightness(1.2);

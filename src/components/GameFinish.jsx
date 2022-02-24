@@ -5,23 +5,49 @@ import { useContext } from 'react'
 import WordContext from '../contexts/WordContext'
 import { decrypt } from '../utils/encrypt'
 
-const data = [
-    {
-        tries: 3,
-    },
-    {
-        tries: 2,
-    },
-    {
-        tries: 6,
-    },
-    {
-        tries: 1,
-    },
-]
-
 const GameFinish = ({ isGameWon, close, updateWord }) => {
     const words = useContext(WordContext)
+
+    // Instead of checking for a win, just check if the tries is equal to 7
+    const calcData = () => {
+        const unparsed = localStorage.getItem('stats')
+        if (!unparsed) return null
+
+        const stats = JSON.parse(unparsed)
+
+        if (isGameWon == 'correct' || isGameWon == 'wrong') return stats
+
+        return null
+    }
+
+    const calcStats = () => {
+        const unparsed = localStorage.getItem('stats')
+        if (!unparsed) return null
+        
+        const stats = JSON.parse(unparsed)
+
+        let played = stats.length
+        let win = (stats.filter(x => x.tries < 7).length / played) * 100
+        let streak = 0
+        let maxStreak = 0
+
+        stats.forEach((game, index) => {
+            if (game.tries < 7) {
+                if (stats[index + 1]?.tries < 7) {
+                    streak++
+
+                    if (streak > maxStreak) maxStreak = streak
+                }
+            } else streak = 0
+        })
+
+        return {
+            played,
+            win,
+            streak,
+            maxStreak,
+        }
+    }
 
     return (
         <DivContainer isGameWon={isGameWon}>
@@ -45,28 +71,33 @@ const GameFinish = ({ isGameWon, close, updateWord }) => {
                         <Header>Statistics</Header>
                         <StatsWrapper>
                             <Stat>
-                                <StatNumber>1</StatNumber>
-                                <StatText>Played</StatText>
+                                <StatNumber>{calcStats()?.played}</StatNumber>
+                                <StatCaption>Played</StatCaption>
                             </Stat>
 
                             <Stat>
-                                <StatNumber>0</StatNumber>
-                                <StatText>Win %</StatText>
+                                <StatNumber>{calcStats()?.win}</StatNumber>
+                                <StatCaption>&nbsp;Win %</StatCaption>
                             </Stat>
 
                             <Stat>
-                                <StatNumber>0</StatNumber>
-                                <StatText>Streak</StatText>
+                                <StatNumber>{calcStats()?.streak}</StatNumber>
+                                <StatCaption>Streak</StatCaption>
                             </Stat>
 
                             <Stat>
-                                <StatNumber>0</StatNumber>
-                                <StatText>Max Streak</StatText>
+                                <StatNumber>{calcStats()?.maxStreak}</StatNumber>
+                                <StatCaption>Max Streak</StatCaption>
                             </Stat>
                         </StatsWrapper>
                     </UpperDiv>
                     <GraphWrapper>
-                        <LineChart width={400} height={180} data={data}>
+                        <LineChart
+                            style={{ marginLeft: '-15%', fontSize: '15px' }}
+                            width={400}
+                            height={180}
+                            data={calcData()}
+                        >
                             <Line
                                 type='monotone'
                                 dataKey='tries'
@@ -135,16 +166,24 @@ const StatNumber = styled.h1`
     margin-bottom: 0;
 
     font-size: 30px;
+
+    text-align: center;
 `
 
-const StatText = styled.p`
+const StatCaption = styled.p`
     color: #ccc;
     margin-top: 0.2rem;
 
     font-size: 14px;
+    text-align: center;
 `
 
-const GraphWrapper = styled.div``
+const GraphWrapper = styled.div`
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
 
 const ButtonWrapper = styled.div`
     display: flex;
@@ -245,7 +284,8 @@ const DivContainer = styled.div`
 
 const ElementDiv = styled.div`
     width: 90%;
-    height: 50%;
+
+    height: min-content;
 
     max-height: 90%;
     max-width: 507px;
@@ -257,8 +297,6 @@ const ElementDiv = styled.div`
     box-shadow: 0px 0px 20px #171718;
 
     transition: opacity 350ms ease-in-out;
-
-    ${props => console.log(props.isGameWon)}
 `
 
 export default GameFinish

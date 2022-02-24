@@ -34,6 +34,18 @@ function App() {
         }
     }
 
+    const finishGame = state => {
+        setGameWon(state)
+
+        const unparsed = localStorage.getItem('stats')
+
+        let stats = null
+        if (!unparsed) stats = [{ tries: words.length }]
+        else stats = [...JSON.parse(unparsed), { tries: words.length }]
+
+        localStorage.setItem('stats', JSON.stringify(stats))
+    }
+
     const compareWord = () => {
         const encrypted = localStorage.getItem('word')
         if (!encrypted) updateWord(false)
@@ -42,8 +54,8 @@ function App() {
         console.log(word)
 
         if (words[words.length - 1] == '') {
-            if (words[words.length - 2] == word) setGameWon('correct')
-            else if (words.length > 6) setGameWon('wrong')
+            if (words[words.length - 2] == word) finishGame('correct')
+            else if (words.length > 6) finishGame('wrong')
         }
     }
 
