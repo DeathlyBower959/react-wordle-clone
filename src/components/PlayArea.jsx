@@ -32,14 +32,13 @@ const PlayArea = () => {
                 return `shake 250ms ease-in-out`
 
             const word = decrypt(localStorage.getItem('word'))
-            if (words[col]) {
-                if (words[col] == word)
-                    return `dance 750ms ease-in-out ${row * 100}ms`
-            }
 
-            if (words.includes(word)) return
             if (words[col]?.length < 5 || words[col + 1] == undefined) return
 
+            if (words[col] == word)
+                return `dance 750ms ease-in-out ${row * 100}ms`
+
+            if (words.includes(word)) return
             return `flip 500ms linear ${row * 100}ms`
         },
         [words, possibleWords, decrypt]
