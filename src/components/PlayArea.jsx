@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { useContext, useCallback } from 'react'
 import styled from 'styled-components'
 import WordContext from '../contexts/WordContext'
 import { decrypt } from '../utils/encrypt'
@@ -8,60 +8,53 @@ import possibleWords from '../words/possibleWords.json'
 const PlayArea = () => {
     const words = useContext(WordContext)
 
-    const word = decrypt(localStorage.getItem('word'))
+    const getTileState = useCallback(
+        (col, row) => {
+            const word = decrypt(localStorage.getItem('word'))
+            const letter = words[col] && words[col][row]
 
-    const getTileState = (col, row) => {
-        const letter = words[col] && words[col][row]
+            if (!letter || words[col + 1] == undefined) return
 
-        if (letter == '' || letter == undefined || words[col + 1] == undefined)
-            return
-        if (word[row] == letter) return 'correct'
-        if (word.includes(letter)) return 'wrongLoc'
-        return 'wrong'
-    }
+            if (word[row] == letter) return 'correct'
+            if (word.includes(letter)) return 'wrongLoc'
+            return 'wrong'
+        },
+        [words, decrypt]
+    )
 
-    const calcClassName = (col, row) => {
-        const letter = words[col] && words[col][row]
+    const calcTileAnimation = useCallback(
+        (col, row) => {
+            const letter = words[col] && words[col][row]
 
-        if (letter == '' || letter == undefined || words[col]?.length < 5)
-            return
+            if (!letter || words[col]?.length < 5) return
 
-        if (!possibleWords.includes(words[col])) return 'shake'
+            if (!possibleWords.includes(words[col]))
+                return `shake 250ms ease-in-out`
 
-        if (words[col + 1] == undefined) return
+            const word = decrypt(localStorage.getItem('word'))
+            if (words[col]) {
+                if (words[col] == word)
+                    return `dance 750ms ease-in-out ${row * 100}ms`
+            }
 
-        // setTimeout(() => {
-        //     document.getElementById(`${col}:${row}`).classList.add('flip')
-        // }, row * 250)
+            if (words.includes(word)) return
+            if (words[col]?.length < 5 || words[col + 1] == undefined) return
 
-        // setTimeout(() => {
-        //     document.getElementById(`${col}:${row}`).classList.remove('flip')
-        // }, row * 250 + 500)
-    }
-
-    const calcTileStates = (col, row) => {
-        if (words[col]?.length < 5) return
-
-        if (words[col + 1] == undefined) return
-
-        const tile = document.getElementById(`${col}:${row}`)
-
-        if (!tile) return
-
-        tile.style.animation = `flip 500ms linear ${row * 100}ms`
-    }
+            return `flip 500ms linear ${row * 100}ms`
+        },
+        [words, possibleWords, decrypt]
+    )
 
     return (
         <GuessingGrid>
             {[...Array(6)].map((_, col) => {
                 return [...Array(5)].map((_, row) => {
-                    calcTileStates(col, row)
                     return (
                         <Tile
                             key={`${col}:${row}`}
                             id={`${col}:${row}`}
-                            className={calcClassName(col, row)}
                             state={getTileState(col, row)}
+                            style={{ animation: calcTileAnimation(col, row) }}
                         >
                             {words[col] && words[col][row]}
                         </Tile>

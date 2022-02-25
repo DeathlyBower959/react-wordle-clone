@@ -1,36 +1,42 @@
 import React from 'react'
-import { useEffect, useContext } from 'react'
+import { useEffect, useContext, useCallback } from 'react'
 import styled from 'styled-components'
 import WordContext from '../contexts/WordContext'
+
 import { decrypt } from '../utils/encrypt'
 
 import possibleWords from '../words/possibleWords.json'
 
-const Keyboard = ({ setWords }) => {
+const Keyboard = ({ isGameWon, setWords }) => {
     const words = useContext(WordContext)
 
-    const submitWord = () => {
+    const submitWord = useCallback(() => {
         setWords(prev => {
             if (!possibleWords.includes(prev[prev.length - 1])) return prev
             if (prev[prev.length - 1] === '') return prev
 
             return [...prev, '']
         })
-    }
+    }, [])
 
-    const handleClick = key => {
-        setWords(p => {
-            if (p?.length > 6) return p
+    const handleClick = useCallback(
+        key => {
+            if (isGameWon != '') return
 
-            let prev = [...p]
-            if (prev[prev.length - 1]?.length == 5) return prev
+            setWords(p => {
+                if (p?.length > 6) return p
 
-            prev[prev.length - 1] += key
-            return [...prev]
-        })
-    }
+                let prev = [...p]
+                if (prev[prev.length - 1]?.length == 5) return prev
 
-    const deleteLetter = () => {
+                prev[prev.length - 1] += key
+                return [...prev]
+            })
+        },
+        [isGameWon]
+    )
+
+    const deleteLetter = useCallback(() => {
         setWords(p => {
             let prev = [...p]
             if (prev[prev.length - 1]?.length == 0) return prev
@@ -38,7 +44,7 @@ const Keyboard = ({ setWords }) => {
             prev[prev.length - 1] = prev[prev.length - 1].slice(0, -1)
             return [...prev]
         })
-    }
+    }, [])
 
     const calculateKeyState = key => {
         const word = decrypt(localStorage.getItem('word'))
@@ -62,56 +68,49 @@ const Keyboard = ({ setWords }) => {
             }
         })
 
-        return obj[key.toLowerCase()]
+        return obj[key]
     }
 
     useEffect(() => {
         const handleKeyPress = e => {
-            if (e.key === 'Enter') {
+            if (e.key == 'Enter') {
                 submitWord()
-                return
-            }
-
-            if (e.key === 'Backspace' || e.key === 'Delete') {
+            } else if (e.key == 'Backspace' || e.key === 'Delete') {
                 deleteLetter()
-                return
-            }
-
-            if (e.key.match(/^[a-z]$/)) {
-                handleClick(e.key)
-                return
+            } else if (e.key.match(/^[a-z]$/)) {
+                handleClick(e.key.toLowerCase())
             }
         }
-        document.removeEventListener('keydown', handleKeyPress)
 
         document.addEventListener('keydown', handleKeyPress)
-    }, [])
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyPress)
+        }
+    }, [isGameWon])
 
     return (
-        <StyledKeyboard dataKeyboard>
+        <StyledKeyboard>
             {Keys.map((x, i) => {
                 if (x == '') return <div key={i} className='space'></div>
 
-                if (x == 'Enter')
+                if (x == 'enter')
                     return (
-                        <Key key={i} onClick={submitWord} data-enter large>
+                        <Key key={i} onClick={submitWord} large>
                             {x}
                         </Key>
                     )
 
                 if (x == 'delete')
                     return (
-                        <Key onClick={deleteLetter} key={i} data-delete large>
+                        <Key onClick={deleteLetter} key={i} large>
                             <KeyIcon
                                 xmlns='http://www.w3.org/2000/svg'
                                 height='24'
                                 viewBox='0 0 24 24'
                                 width='24'
                             >
-                                <path
-                                    fill='var(--color-tone-1)'
-                                    d='M22 3H7c-.69 0-1.23.35-1.59.88L0 12l5.41 8.11c.36.53.9.89 1.59.89h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H7.07L2.4 12l4.66-7H22v14zm-11.59-2L14 13.41 17.59 17 19 15.59 15.41 12 19 8.41 17.59 7 14 10.59 10.41 7 9 8.41 12.59 12 9 15.59z'
-                                ></path>
+                                <path d='M22 3H7c-.69 0-1.23.35-1.59.88L0 12l5.41 8.11c.36.53.9.89 1.59.89h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H7.07L2.4 12l4.66-7H22v14zm-11.59-2L14 13.41 17.59 17 19 15.59 15.41 12 19 8.41 17.59 7 14 10.59 10.41 7 9 8.41 12.59 12 9 15.59z'></path>
                             </KeyIcon>
                         </Key>
                     )
@@ -175,35 +174,35 @@ const KeyIcon = styled.svg`
 `
 
 const Keys = [
-    'Q',
-    'W',
-    'E',
-    'R',
-    'T',
-    'Y',
-    'U',
-    'I',
-    'O',
-    'P',
+    'q',
+    'w',
+    'e',
+    'r',
+    't',
+    'y',
+    'u',
+    'i',
+    'o',
+    'p',
     '',
-    'A',
-    'S',
-    'D',
-    'F',
-    'G',
-    'H',
-    'J',
-    'K',
-    'L',
+    'a',
+    's',
+    'd',
+    'f',
+    'g',
+    'h',
+    'j',
+    'k',
+    'l',
     '',
-    'Enter',
-    'Z',
-    'X',
-    'C',
-    'V',
-    'B',
-    'N',
-    'M',
+    'enter',
+    'z',
+    'x',
+    'c',
+    'v',
+    'b',
+    'n',
+    'm',
     'delete',
 ]
 

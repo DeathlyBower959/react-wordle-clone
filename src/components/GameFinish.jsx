@@ -1,13 +1,14 @@
 import styled from 'styled-components'
 
-import { LineChart, Line, XAxis, YAxis } from 'recharts'
-import { useContext } from 'react'
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from 'recharts'
+import { useContext, useState, useEffect } from 'react'
 import WordContext from '../contexts/WordContext'
+
 import { decrypt } from '../utils/encrypt'
 
 const GameFinish = ({ isGameWon, close, updateWord }) => {
     const words = useContext(WordContext)
-
+    const [forceUpdate, setForceUpdate] = useState(false)
     // Instead of checking for a win, just check if the tries is equal to 7
     const calcData = () => {
         const unparsed = localStorage.getItem('stats')
@@ -15,29 +16,28 @@ const GameFinish = ({ isGameWon, close, updateWord }) => {
 
         const stats = JSON.parse(unparsed)
 
-        if (isGameWon == 'correct' || isGameWon == 'wrong') return stats
-
-        return null
+        return stats
     }
+
+    // Use `useState` to force rerender of react
 
     const calcStats = () => {
         const unparsed = localStorage.getItem('stats')
         if (!unparsed) return null
-        
+
         const stats = JSON.parse(unparsed)
 
         let played = stats.length
-        let win = (stats.filter(x => x.tries < 7).length / played) * 100
+        let win = Math.floor(
+            (stats.filter(x => x.tries != 0).length / played) * 100
+        )
         let streak = 0
         let maxStreak = 0
 
         stats.forEach((game, index) => {
-            if (game.tries < 7) {
-                if (stats[index + 1]?.tries < 7) {
-                    streak++
-
-                    if (streak > maxStreak) maxStreak = streak
-                }
+            if (game.tries != 0) {
+                streak++
+                if (streak > maxStreak) maxStreak = streak
             } else streak = 0
         })
 
@@ -48,6 +48,10 @@ const GameFinish = ({ isGameWon, close, updateWord }) => {
             maxStreak,
         }
     }
+
+    useEffect(() => {
+        setForceUpdate(prev => !prev)
+    }, [isGameWon])
 
     return (
         <DivContainer isGameWon={isGameWon}>
@@ -86,26 +90,32 @@ const GameFinish = ({ isGameWon, close, updateWord }) => {
                             </Stat>
 
                             <Stat>
-                                <StatNumber>{calcStats()?.maxStreak}</StatNumber>
+                                <StatNumber>
+                                    {calcStats()?.maxStreak}
+                                </StatNumber>
                                 <StatCaption>Max Streak</StatCaption>
                             </Stat>
                         </StatsWrapper>
                     </UpperDiv>
                     <GraphWrapper>
-                        <LineChart
-                            style={{ marginLeft: '-15%', fontSize: '15px' }}
-                            width={400}
-                            height={180}
-                            data={calcData()}
-                        >
-                            <Line
-                                type='monotone'
-                                dataKey='tries'
-                                stroke='#8888ff'
-                            />
-                            <XAxis />
-                            <YAxis />
-                        </LineChart>
+                        <ResponsiveContainer width='100%' height={180}>
+                            <LineChart
+                                style={{
+                                    fontSize: '15px',
+                                    marginLeft: '-7%',
+                                }}
+                                data={calcData()}
+                            >
+                                <Line
+                                    type='monotone'
+                                    dataKey='tries'
+                                    stroke='#8888ff'
+                                    dot={false}
+                                />
+                                <XAxis domain={[1, '']} />
+                                <YAxis domain={[0, 6]} />
+                            </LineChart>
+                        </ResponsiveContainer>
                     </GraphWrapper>
 
                     <ButtonWrapper>
@@ -284,11 +294,10 @@ const DivContainer = styled.div`
 
 const ElementDiv = styled.div`
     width: 90%;
-
     height: min-content;
 
     max-height: 90%;
-    max-width: 507px;
+    max-width: 550px;
 
     padding: 16px;
     background-color: #121213;

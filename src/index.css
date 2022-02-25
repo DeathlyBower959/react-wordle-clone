@@ -13,19 +13,6 @@ body {
   font-size: clamp(.5rem, 2.5vmin, 1.5rem);
 }
 
-.shake {
-  animation: shake 250ms ease-in-out;
-}
-
-.dance {
-  animation: dance 500ms ease-in-out;
-}
-
-
-.flip {
-  /* animation: flip 1s linear 0s; */
-}
-
 @keyframes flip {
   0% {
     transform: rotateX(0);
