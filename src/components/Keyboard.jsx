@@ -5,14 +5,19 @@ import WordContext from '../contexts/WordContext'
 
 import { decrypt } from '../utils/encrypt'
 
-import possibleWords from '../words/possibleWords.json'
+import possibleWords from '../words/words.js'
 
-const Keyboard = ({ isGameWon, setWords }) => {
+const Keyboard = ({ wordLength, isGameWon, setWords }) => {
     const words = useContext(WordContext)
 
     const submitWord = useCallback(() => {
         setWords(prev => {
-            if (!possibleWords.includes(prev[prev.length - 1])) return prev
+            if (
+                !possibleWords[`words${wordLength}`]?.includes(
+                    prev[prev.length - 1]
+                )
+            )
+                return prev
             if (prev[prev.length - 1] === '') return prev
 
             return [...prev, '']
@@ -27,13 +32,13 @@ const Keyboard = ({ isGameWon, setWords }) => {
                 if (p?.length > 6) return p
 
                 let prev = [...p]
-                if (prev[prev.length - 1]?.length == 5) return prev
+                if (prev[prev.length - 1]?.length == wordLength) return prev
 
                 prev[prev.length - 1] += key
                 return [...prev]
             })
         },
-        [isGameWon]
+        [isGameWon, wordLength]
     )
 
     const deleteLetter = useCallback(() => {
@@ -130,10 +135,14 @@ const Keyboard = ({ isGameWon, setWords }) => {
 
 const StyledKeyboard = styled.div`
     display: grid;
-    grid-template-columns: repeat(20, minmax(auto, 1.25em));
-    grid-auto-rows: 3em;
+    grid-template-columns: repeat(20, minmax(1.5em, 2vw));
+    grid-auto-rows: 4rem;
     gap: 0.25em;
     justify-content: center;
+
+    @media only screen and (max-width: 900px) {
+        grid-template-columns: repeat(20, 4vw);
+    }
 `
 
 const Key = styled.div`
@@ -147,12 +156,12 @@ const Key = styled.div`
 
     background-color: ${props =>
         props.state == 'correct'
-            ? '#538d4e'
+            ? props.theme.keys.correct
             : props.state == 'wrongLoc'
-            ? '#b59f3b'
+            ? props.theme.keys.wrongLoc
             : props.state == 'wrong'
-            ? '#3a3a3c'
-            : '#818384'};
+            ? props.theme.keys.wrong
+            : props.theme.keys.normal};
 
     color: white;
     fill: white;

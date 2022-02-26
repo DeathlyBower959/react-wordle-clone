@@ -1,8 +1,54 @@
 {
     "dark": {
-
+        "id": "dark",
+        "accent": "#3eb334",
+        "background": "#111112",
+        "secondaryBackground": "#121213",
+        "icon": "#555",
+        "border": "#39393c",
+        "darkBorder": "#1a1a1b",
+        "foreground": "#fff",
+        "faded": "#dbdbdb",
+        "muted": "#666",
+        "keys": {
+            "normal": "#818384",
+            "wrong": "#3a3a3c",
+            "wrongLoc": "#b59f3b",
+            "correct": "#538d4e"
+        },
+        "button": {
+            "border":"#434343",
+            "bg": "#232323"
+        },
+        "notification": {
+            "bg": "#ddd",
+            "color": "#333"
+        }
     },
     "light": {
-        
+        "id": "light",
+        "accent": "#3eb334",
+        "background": "#111112",
+        "secondaryBackground": "#121213",
+        "icon": "#555",
+        "border": "#39393c",
+        "darkBorder": "#1a1a1b",
+        "foreground": "#fff",
+        "faded": "#dbdbdb",
+        "muted": "#666",
+        "keys": {
+            "normal": "#818384",
+            "wrong": "#3a3a3c",
+            "wrongLoc": "#b59f3b",
+            "correct": "#538d4e"
+        },
+        "button": {
+            "border":"#434343",
+            "bg": "#232323"
+        },
+        "notification": {
+            "bg": "#ddd",
+            "color": "#333"
+        }
     }
 }

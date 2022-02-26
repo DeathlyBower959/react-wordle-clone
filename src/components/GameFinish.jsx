@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled, { ThemeContext } from 'styled-components'
 
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from 'recharts'
 import { useContext, useState, useEffect } from 'react'
@@ -7,6 +7,8 @@ import WordContext from '../contexts/WordContext'
 import { decrypt } from '../utils/encrypt'
 
 const GameFinish = ({ isGameWon, close, updateWord }) => {
+    const theme = useContext(ThemeContext)
+    
     const words = useContext(WordContext)
     const [forceUpdate, setForceUpdate] = useState(false)
     // Instead of checking for a win, just check if the tries is equal to 7
@@ -64,7 +66,6 @@ const GameFinish = ({ isGameWon, close, updateWord }) => {
                         width='24'
                     >
                         <path
-                            fill='#fff'
                             d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'
                         ></path>
                     </svg>
@@ -109,7 +110,7 @@ const GameFinish = ({ isGameWon, close, updateWord }) => {
                                 <Line
                                     type='monotone'
                                     dataKey='tries'
-                                    stroke='#8888ff'
+                                    stroke={theme.accent}
                                     dot={false}
                                 />
                                 <XAxis domain={[1, '']} />
@@ -181,7 +182,7 @@ const StatNumber = styled.h1`
 `
 
 const StatCaption = styled.p`
-    color: #ccc;
+    color: ${props => props.theme.faded};
     margin-top: 0.2rem;
 
     font-size: 14px;
@@ -207,10 +208,10 @@ const Button = styled.button`
     margin: 5px 0;
     border-radius: 8px;
 
-    border: 1px solid #434343;
-    background-color: #232323;
+    border: 1px solid ${props => props.theme.button.border};
+    background-color: ${props => props.theme.button.bg};
 
-    color: #c9c9c9;
+    color: ${props => props.theme.faded};
     font-size: 1rem;
 
     cursor: pointer;
@@ -236,7 +237,7 @@ const InnerDiv = styled.div`
 `
 
 const Header = styled.h2`
-    color: #dbdbdb;
+    color: ${props => props.theme.faded};
     text-align: center;
 
     margin-bottom: 0;
@@ -247,11 +248,17 @@ const Header = styled.h2`
 const CloseIcon = styled.div`
     width: 24px;
     height: 24px;
-    margin-left: auto;
-    margin-right: 0;
+    margin-right: 16px;
 
     cursor: pointer;
     pointer-events: all;
+
+    position: absolute;
+    right: 0;
+
+    svg path {
+        fill: ${props => props.theme.foreground};
+    }
 `
 
 const DivContainer = styled.div`
@@ -300,12 +307,14 @@ const ElementDiv = styled.div`
     max-width: 550px;
 
     padding: 16px;
-    background-color: #121213;
-    border: 1px solid #1a1a1b;
+    background-color: ${props => props.theme.secondaryBackground};;
+    border: 1px solid ${props => props.theme.darkBorder};;
     border-radius: 8px;
     box-shadow: 0px 0px 20px #171718;
 
     transition: opacity 350ms ease-in-out;
+
+    position: relative;
 `
 
 export default GameFinish

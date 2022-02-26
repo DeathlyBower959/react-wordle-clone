@@ -3,9 +3,9 @@ import styled from 'styled-components'
 import WordContext from '../contexts/WordContext'
 import { decrypt } from '../utils/encrypt'
 
-import possibleWords from '../words/possibleWords.json'
+import possibleWords from '../words/words.js'
 
-const PlayArea = () => {
+const PlayArea = ({ wordLength }) => {
     const words = useContext(WordContext)
 
     const replaceAt = useCallback((string, index, replacement) => {
@@ -22,16 +22,20 @@ const PlayArea = () => {
 
     const getTileStates = useCallback(() => {
         var states = []
-        
+
         words.forEach((guess, col) => {
             let word = decrypt(localStorage.getItem('word'))
 
             if (words[col + 1] == undefined) return
 
             guess.split('')?.forEach((letter, row) => {
-                if (!states[col]) states.push('wwwww')
+                const times = (n, iterator) => {
+                    var accum = Array(Math.max(0, n))
+                    for (var i = 0; i < n; i++) accum[i] = iterator
+                    return accum
+                }
 
-                console.log(word[row])
+                if (!states[col]) states.push(times(wordLength, 'w').join(''))
 
                 if (word[row] == letter) {
                     states[col] = replaceAt(states[col], row, 'c')
@@ -41,11 +45,7 @@ const PlayArea = () => {
 
                 const replaceAtIndex = i => {
                     if (i < 0) return word
-                    return (
-                        word.substr(0, i) +
-                        '.' +
-                        word.substr(i + 1)
-                    )
+                    return word.substr(0, i) + '.' + word.substr(i + 1)
                 }
                 word = replaceAtIndex(word.indexOf(letter))
             })
@@ -65,14 +65,15 @@ const PlayArea = () => {
         (col, row) => {
             const letter = words[col] && words[col][row]
 
-            if (!letter || words[col]?.length < 5) return
+            if (!letter || words[col]?.length < wordLength) return
 
-            if (!possibleWords.includes(words[col]))
+            if (!possibleWords[`words${wordLength}`].includes(words[col]))
                 return `shake 250ms ease-in-out`
 
             const word = decrypt(localStorage.getItem('word'))
 
-            if (words[col]?.length < 5 || words[col + 1] == undefined) return
+            if (words[col]?.length < wordLength || words[col + 1] == undefined)
+                return
 
             if (words[col] == word)
                 return `dance 750ms ease-in-out ${row * 100}ms`
@@ -84,9 +85,9 @@ const PlayArea = () => {
     )
 
     return (
-        <GuessingGrid>
+        <GuessingGrid columns={wordLength}>
             {[...Array(6)].map((_, col) => {
-                return [...Array(5)].map((_, row) => {
+                return [...Array(wordLength)].map((_, row) => {
                     return (
                         <Tile
                             key={`${col}:${row}`}
@@ -111,14 +112,21 @@ const GuessingGrid = styled.div`
     justify-content: center;
     align-content: center;
     flex-grow: 1;
-    grid-template-columns: repeat(5, 4em);
-    grid-template-rows: repeat(6, 4em);
+    grid-template-columns: ${props => `repeat(${props.columns}, minmax(2rem, 6rem))`};
+    grid-template-rows: repeat(6, minmax(2rem, 6rem));
+
+    /* @media only screen and (max-width: 900px) {
+        grid-template-columns: ${props =>
+            `repeat(${props.columns}, minmax(auto, 10vw))`};
+        grid-template-rows: repeat(6, minmax(auto, 10vw));
+    } */
+
     gap: 0.25em;
     margin-bottom: 1em;
 `
 
 const Tile = styled.div`
-    font-size: 2em;
+    font-size: clamp(2rem, 2em, 6rem);
     color: white;
     border: 0.05em solid hsl(240, 2%, 23%);
     text-transform: uppercase;
@@ -131,11 +139,11 @@ const Tile = styled.div`
 
     background-color: ${props =>
         props.state == 'c'
-            ? '#538d4e'
+            ? props.theme.keys.correct
             : props.state == 'l'
-            ? '#b59f3b'
+            ? props.theme.keys.wrongLoc
             : props.state == 'w'
-            ? '#818384'
+            ? props.theme.keys.wrong
             : ''};
 `
 

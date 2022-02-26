@@ -59,8 +59,8 @@ const Notification = () => {
 }
 
 const NotificationBox = styled.div`
-    background-color: #ddd;
-    color: #333;
+    background-color: ${props => props.theme.notification.bg};
+    color: ${props => props.theme.notification.color};
 
     padding: 1em 2em;
     border-radius: 15px;
