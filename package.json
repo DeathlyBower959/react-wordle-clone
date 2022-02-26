@@ -15,9 +15,9 @@
         "react:build": "react-scripts build",
         "react:test": "react-scripts test",
         "react:eject": "react-scripts eject",
-        "predeploy:custom": "npm run build -and echo exampledomain.ml >> build/CNAME",
+        "predeploy:custom": "npm run react:build -and echo exampledomain.ml >> build/CNAME",
         "deploy:custom": "gh-pages -d build",
-        "predeploy:normal": "npm run build -and if (Test-Path ./build/CNAME) {Remove-Item ./build/CNAME}",
+        "predeploy:normal": "npm run react:build -and if (Test-Path ./build/CNAME) {Remove-Item ./build/CNAME}",
         "deploy:normal": "gh-pages -d build"
     },
     "eslintConfig": {
