@@ -84,7 +84,7 @@ function App() {
 
     useEffect(() => {
         if (!possibleWords[`words${wordLength}`]) updateWordLength(5)
-        else if (words.length == 1) updateWord(false)
+        else if (words[0].length == 0) updateWord(false)
     }, [wordLength])
 
     const finishGame = state => {
@@ -132,7 +132,6 @@ function App() {
         if (!encrypted) updateWord(false)
 
         const word = decrypt(encrypted)
-        console.log(word)
 
         if (words[words.length - 1] == '') {
             if (words[words.length - 2] == word) finishGame('correct')
