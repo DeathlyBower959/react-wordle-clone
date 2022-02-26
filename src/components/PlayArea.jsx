@@ -8,19 +8,58 @@ import possibleWords from '../words/possibleWords.json'
 const PlayArea = () => {
     const words = useContext(WordContext)
 
-    const getTileState = useCallback(
-        (col, row) => {
-            const word = decrypt(localStorage.getItem('word'))
-            const letter = words[col] && words[col][row]
+    const replaceAt = useCallback((string, index, replacement) => {
+        if (index >= string.length) {
+            return string.valueOf()
+        }
 
-            if (!letter || words[col + 1] == undefined) return
+        return (
+            string.substring(0, index) +
+            replacement +
+            string.substring(index + 1)
+        )
+    }, [])
 
-            if (word[row] == letter) return 'correct'
-            if (word.includes(letter)) return 'wrongLoc'
-            return 'wrong'
-        },
-        [words, decrypt]
-    )
+    const getTileStates = useCallback(() => {
+        var states = []
+        
+        words.forEach((guess, col) => {
+            let word = decrypt(localStorage.getItem('word'))
+
+            if (words[col + 1] == undefined) return
+
+            guess.split('')?.forEach((letter, row) => {
+                if (!states[col]) states.push('wwwww')
+
+                console.log(word[row])
+
+                if (word[row] == letter) {
+                    states[col] = replaceAt(states[col], row, 'c')
+                } else if (word.includes(letter)) {
+                    states[col] = replaceAt(states[col], row, 'l')
+                }
+
+                const replaceAtIndex = i => {
+                    if (i < 0) return word
+                    return (
+                        word.substr(0, i) +
+                        '.' +
+                        word.substr(i + 1)
+                    )
+                }
+                word = replaceAtIndex(word.indexOf(letter))
+            })
+            // const letter = words[col] && words[col][row]
+
+            // if (!letter || words[col + 1] == undefined) return
+
+            // if (word[row] == letter) return 'correct'
+            // if (word.includes(letter)) return 'wrongLoc'
+            // return 'wrong'
+        })
+
+        return states
+    }, [words, decrypt])
 
     const calcTileAnimation = useCallback(
         (col, row) => {
@@ -52,7 +91,10 @@ const PlayArea = () => {
                         <Tile
                             key={`${col}:${row}`}
                             id={`${col}:${row}`}
-                            state={getTileState(col, row)}
+                            state={
+                                getTileStates()[col] &&
+                                getTileStates()[col][row]
+                            }
                             style={{ animation: calcTileAnimation(col, row) }}
                         >
                             {words[col] && words[col][row]}
@@ -88,11 +130,11 @@ const Tile = styled.div`
     transition: transform 250ms linear;
 
     background-color: ${props =>
-        props.state == 'correct'
+        props.state == 'c'
             ? '#538d4e'
-            : props.state == 'wrongLoc'
+            : props.state == 'l'
             ? '#b59f3b'
-            : props.state == 'wrong'
+            : props.state == 'w'
             ? '#818384'
             : ''};
 `
