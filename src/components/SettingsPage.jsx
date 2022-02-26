@@ -56,7 +56,7 @@ const SettingsPage = ({
 
                             <SettingTitle>Dark Mode</SettingTitle>
                             <SwitchWrapper>
-                                <SwitchInput checked={theme.id == 'dark'} />
+                                <SwitchInput checked={theme.id == 'dark'} readOnly/>
                                 <Slider onClick={toggleTheme} />
                             </SwitchWrapper>
                         </SettingWrapper>
